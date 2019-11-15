@@ -7,10 +7,13 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.SearchView;
 
 import com.android.volley.Request;
@@ -25,31 +28,31 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 /**
  * A simple {@link Fragment} subclass.
  */
 public class CatFragment extends Fragment {
-    SearchView searchBar;
     private RecyclerView recyclerView;
     private CatAdapter catAdapter;
-    String url = "https://api.thecatapi.com/v1/breeds?api-key=52d832db-85e1-4b0a-9eef-5b553017258d";
+    String url;
 
     public CatFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_cat, container, false);
+        final EditText searchBar = view.findViewById(R.id.searchBar);
+        Button searchButton = view.findViewById(R.id.searchButton);
 
         recyclerView = view.findViewById(R.id.rv_main);
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         recyclerView.setLayoutManager(layoutManager);
-
+        url = "https://api.thecatapi.com/v1/breeds?api-key=52d832db-85e1-4b0a-9eef-5b553017258d";
+        final CatAdapter catAdapter = new CatAdapter();
 
         final RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
         Response.Listener<String> responseListener = new Response.Listener<String>() {
@@ -59,16 +62,12 @@ public class CatFragment extends Fragment {
                 Gson gson = new Gson();
                 Cat[] catObjectArray = gson.fromJson(response, Cat[].class);
                 ArrayList<Cat> catsList = new ArrayList<>(Arrays.asList(catObjectArray));
-                final CatAdapter catAdapter = new CatAdapter(catsList);
+
                 catAdapter.setData(catsList);
                 recyclerView.setAdapter(catAdapter);
-
-                searchBar = view.findViewById(R.id.searchBar);
-                searchCat(searchBar);
-
             }
         };
-        Response.ErrorListener errorListener = new Response.ErrorListener() {
+        final Response.ErrorListener errorListener = new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 System.out.println("error");
@@ -76,22 +75,40 @@ public class CatFragment extends Fragment {
         };
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url, responseListener, errorListener);
         requestQueue.add(stringRequest);
+
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                InputMethodManager inputMethodManager = (InputMethodManager) v.getContext().getSystemService(view.getContext().INPUT_METHOD_SERVICE);
+                inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                String searchedCat = searchBar.getText().toString().toLowerCase();
+                if (searchedCat.equals("")) {
+                    url = "https://api.thecatapi.com/v1/breeds?api-key=52d832db-85e1-4b0a-9eef-5b553017258d";
+                } else {
+                    url = "https://api.thecatapi.com/v1/breeds/search?q=" + searchedCat;
+                }
+                Response.Listener<String> responseListener = new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Gson gson = new Gson();
+                        Cat[] catObjectArray = gson.fromJson(response, Cat[].class);
+                        ArrayList<Cat> catsList = new ArrayList<>(Arrays.asList(catObjectArray));
+                        catAdapter.setData(catsList);
+                        recyclerView.setAdapter(catAdapter);
+                    }
+                };
+                Response.ErrorListener errorListener1 = new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        System.out.println("oh no");
+                    }
+                };
+                StringRequest stringRequest1 = new StringRequest(Request.Method.GET, url, responseListener, errorListener1);
+                requestQueue.add(stringRequest1);
+            }
+        });
         return view;
     }
 
-    private void searchCat(SearchView searchView) {
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                catAdapter.getFilter().filter(query);
-                return true;
-            }
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                catAdapter.getFilter().filter(newText);
-                return true;
-            }
-        });
-    }
 }

@@ -5,20 +5,31 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".CatFragment">
-
-    <SearchView
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
+    <EditText
         android:id="@+id/searchBar"
-        app:actionViewClass="android.support.v7.widget.SearchView"/>
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:hint= "Press search button, not enter to search"
+        android:textSize= "12dp"
+        />
 
     <!-- TODO: Update blank fragment layout -->
+    <Button
+        android:id="@+id/searchButton"
+        android:layout_marginEnd="15dp"
+        android:layout_marginTop="2dp"
+        android:layout_gravity="top|end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:text="Search"
+        android:layout_marginRight="15dp" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="@string/hello_blank_fragment"
-        android:layout_marginTop= "70dp"
+        android:layout_marginTop= "40dp"
         />
-
 </FrameLayout>

@@ -5,6 +5,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,7 +25,9 @@ import java.util.Arrays;
 public class CatDetailActivity extends AppCompatActivity {
     private RequestQueue requestQueue;
     private String CatId;
+    private Button favButton;
 
+    private boolean fav = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +35,8 @@ public class CatDetailActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         CatId = intent.getStringExtra("id");
+        fav = intent.getBooleanExtra("fav", false);
+
         final ConstraintLayout activity_cat_detail = findViewById(R.id.activity_cat_detail);
         requestQueue = Volley.newRequestQueue(getApplicationContext());
         String url = "https:api.thecatapi.com/v1/images/search?breed_id=" + CatId;
@@ -45,8 +51,8 @@ public class CatDetailActivity extends AppCompatActivity {
 
                 Cat[] catArrayObject = catPicObject.getBreeds();
                 ArrayList<Cat> catArrayListObject = new ArrayList<Cat>(Arrays.asList(catArrayObject));
-                Cat catObject = catArrayListObject.get(0);
-                weight weightArrayObject = catObject.getWeight();
+                Cat thisCat = catArrayListObject.get(0);
+                weight weightArrayObject = thisCat.getWeight();
 
                 TextView catName12 = activity_cat_detail.findViewById(R.id.nameDetail1);
                 TextView catDesc = activity_cat_detail.findViewById(R.id.descDetail);
@@ -58,18 +64,17 @@ public class CatDetailActivity extends AppCompatActivity {
                 TextView wikiUrl = activity_cat_detail.findViewById(R.id.wikiLink);
                 TextView dogLevel = activity_cat_detail.findViewById(R.id.dogDetail);
 
-                catName12.setText(catObject.getName());
-                catDesc.setText("Description: " +catObject.getDescription());
+                catName12.setText(thisCat.getName());
+                catDesc.setText("Description: " +thisCat.getDescription());
                 Glide.with(getApplicationContext()).load(catPicObject.getUrl()).into(catPic);
-                catOrigin.setText("Cat Origin Country: " +catObject.getOrigin());
+                catOrigin.setText("Cat Origin Country: " +thisCat.getOrigin());
                 weight.setText("Weight " +weightArrayObject.getMetric() + " kg");
-                catTemp.setText("Temperament: " +catObject.getTemperament());
-                catLife.setText("Life Span: " +catObject.getLife_span() + "(years)");
-                wikiUrl.setText(catObject.getWikipedia_url());
-                dogLevel.setText("Dog Friendly Level " +(catObject.getDog_friendly()) + " / 5");
+                catTemp.setText("Temperament: " +thisCat.getTemperament());
+                catLife.setText("Life Span: " +thisCat.getLife_span() + "(years)");
+                wikiUrl.setText(thisCat.getWikipedia_url());
+                dogLevel.setText("Dog Friendly Level " +(thisCat.getDog_friendly()) + " / 5");
             }
         };
-
         Response.ErrorListener errorListener = new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
@@ -79,6 +84,26 @@ public class CatDetailActivity extends AppCompatActivity {
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url, responseListener, errorListener);
         requestQueue.add(stringRequest);
+// didn't finish favourites
+        favButton = findViewById(R.id.favButton);
+        if(fav = false){
+            favButton.setText("Favourite this cat");
+        }else if (fav = true){
+            favButton.setText("Unfavourite this cat");
+        }
+        favButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (fav=false){
+                    favButton.setText("Favourite this cat");
+                    fav = true;
+                } else if( fav = true){
+                    favButton.setText("Unfavourite this cat");
+                    fav = false;
+                }
+            }
+        });
 
     }
+
 }

@@ -1,6 +1,5 @@
 package com.example.assignment3v2;
 
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -23,17 +22,13 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     RequestQueue requestQueue;
-
-
     BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         swapFragment(new CatFragment());
-
 
         bottomNavigationView = findViewById(R.id.nav_view);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
